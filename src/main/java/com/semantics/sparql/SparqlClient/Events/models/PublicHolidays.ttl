@@ -1,0 +1,95 @@
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix schema: <http://schema.org/>.
+@prefix wasa: <http://vocab.sti2.at/wasa/> .
+
+
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:PublicHolidaysSearch a schema:SearchAction;
+    schema:name "PublicHolidays Search";
+    schema:description "Search different PublicHolidays based on name or date";
+    schema:actionStatus schema:PotentialActionStatus;
+    schema:target [
+        a schema:EntryPoint;
+        schema:urlTemplate :query;
+        schema:encodingFormat "application/ld+json";
+        schema:contentType "application/ld+json";
+        schema:httpMethod "POST"
+    ];
+    wasa:actionShape [
+        a sh:NodeShape;
+        sh:property [
+            sh:path schema:object;
+            sh:group wasa:Input;
+            sh:class schema:PublicHolidays;
+            sh:node [
+                sh:property [
+                    sh:path schema:name;
+                    sh:datatype xsd:string;
+                    sh:maxCount 1
+                ];
+                sh:property [
+                    sh:path schema:startDate;
+                    sh:datatype xsd:date;
+                    sh:maxCount 1
+                ];
+                sh:property [
+                    sh:path schema:endDate;
+                    sh:datatype xsd:date;
+                    sh:maxCount 1
+                ]
+
+            ];
+            sh:minCount 1;
+            sh:maxCount 1;
+        ];
+         sh:sparql [
+	 a sh:SPARQLConstraint ;
+	 sh:prefixes rdf:;
+	 sh:prefixes schema:;
+	 sh:prefixes xsd:;
+
+	 sh:message "Violation has occured" ;
+	 sh:select '''
+	   SELECT $this
+	   WHERE {
+	    ?ph  a  schema:PublicHolidays;
+            schema:name	?name;
+            schema:eventSchedule ?schedule.
+	    ?schedule schema:startDate ?sdate.
+	    ?schedule schema:endDate ?edate.
+	    filter(datatype(?sdate) = xsd:date && datatype(?edate) = xsd:date)
+	    }
+	    ''' ;
+	 ] ;
+        sh:property [
+            sh:path schema:result;
+            sh:group wasa:Output;
+            sh:nodeKind sh:IRI;
+            sh:class schema:PublicHolidays;
+            sh:node [
+                sh:property [
+                    sh:path schema:name;
+                    sh:datatype xsd:string;
+                    sh:minCount 1;
+                ];
+                sh:property [
+                    sh:path schema:description;
+                    sh:datatype xsd:string;
+                    sh:minCount 1;
+                ];
+                sh:property [
+                    sh:path schema:startDate;
+                    sh:datatype xsd:date;
+
+                ];
+                sh:property [
+                    sh:path schema:endDate;
+                    sh:datatype xsd:date;
+
+                ]
+
+            ]
+
+        ]
+    ] .

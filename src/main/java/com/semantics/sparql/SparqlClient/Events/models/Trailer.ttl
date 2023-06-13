@@ -1,0 +1,96 @@
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix schema: <http://schema.org/>.
+@prefix wasa: <http://vocab.sti2.at/wasa/> .
+@prefix event: <http://example.org/events/> .
+@prefix : <http://http://example.org/eventapi/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix odta: <https://odta.io/voc/>.
+
+:c a schema:SearchAction;
+    schema:name "Trail Search";
+    schema:description "Search different types of events based on name or geo coordinates latitude and longtitude;
+    schema:actionStatus schema:PotentialActionStatus;
+    schema:target [
+        a schema:EntryPoint;
+        schema:urlTemplate :query;
+        schema:encodingFormat "application/ld+json";
+        schema:contentType "application/ld+json";
+        schema:httpMethod "POST"
+    ];
+    wasa:actionShape [
+        a sh:NodeShape;
+        sh:property [
+            sh:path schema:object;
+            sh:group wasa:Input;
+            sh:class odta:Trail;
+            sh:node [
+                sh:property [
+                    sh:path schema:name;
+                    sh:datatype xsd:string;
+                    sh:maxCount 1
+                ];
+                sh:property [
+                    sh:path schema:schema:latitude;
+                    sh:datatype  xsd:double;
+                    sh:maxCount 1
+                ];
+                sh:property [
+                    sh:path schema:longitude;
+                    sh:datatype xsd:double;
+                    sh:maxCount 1
+                ]
+
+            ];
+            sh:minCount 1;
+            sh:maxCount 1;
+        ];
+         sh:sparql [
+	 a sh:SPARQLConstraint ;
+	 sh:prefixes rdf:;
+	 sh:prefixes schema:;
+	 sh:prefixes xsd:;
+
+	 sh:message "Violation has occured" ;
+	 sh:select '''
+	    SELECT $this
+	    WHERE {
+	     ?event  a  schema:Event;
+            schema:name	?name;
+            schema:eventSchedule ?schedule.
+	    ?schedule schema:startDate ?sdate.
+	    ?schedule schema:endDate ?edate.
+	    filter(?sdate > "2023-05-01"^^xsd:date && ?edate < "2023-07-09"^^xsd:date)
+	    }
+	    ''' ;
+	 ] ;
+        sh:property [
+            sh:path schema:result;
+            sh:group wasa:Output;
+            sh:nodeKind sh:IRI;
+            sh:class schema:Event;
+            sh:node [
+                sh:property [
+                    sh:path schema:name;
+                    sh:datatype xsd:string;
+                    sh:minCount 1;
+                ];
+                sh:property [
+                    sh:path schema:description;
+                    sh:datatype xsd:string;
+                    sh:minCount 1;
+                ];
+               sh:property [
+                    sh:path schema:schema:latitude;
+                    sh:datatype  xsd:double;
+                    sh:maxCount 1
+                ];
+                sh:property [
+                    sh:path schema:longitude;
+                    sh:datatype xsd:double;
+                    sh:maxCount 1
+                ]
+
+            ]
+
+        ]
+    ] .
