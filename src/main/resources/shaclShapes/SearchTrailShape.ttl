@@ -1,0 +1,46 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix wasa:<http://vocab.sti2.at/wasa/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+PREFIX odta: <https://odta.io/voc/>
+
+wasa:actionShape
+    a sh:NodeShape ;
+        sh:targetClass odta:Trail;
+        schema:name "Trail Search";
+        schema:description "Search different types of Trail based on name or geo";
+        schema:actionStatus schema:PotentialActionStatus;
+    sh:property [
+        sh:path schema:object;
+        sh:node schema:object;
+    ] .
+
+schema:object
+    a sh:NodeShape ;
+    sh:targetClass schema:geo;
+    sh:property [
+        sh:path schema:name;
+        sh:datatype xsd:string ;
+        sh:maxCount 1
+    ];
+   sh:property [
+        sh:path schema:latitude;
+        sh:datatype xsd:double ;
+        sh:message "The value must be in the double format "
+    ] ;
+       sh:property [
+            sh:path schema:latitude;
+            sh:maxCount 1
+        ] ;
+    sh:property [
+        sh:path schema:longitude;
+        sh:datatype xsd:double ;
+        sh:message "The value must be in the double format "
+
+    ];
+    sh:property [
+            sh:path schema:longitude;
+            sh:maxCount 1
+        ].

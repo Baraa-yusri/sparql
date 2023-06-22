@@ -1,0 +1,24 @@
+PREFIX schema: <https://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+DELETE {
+  %s
+  %s
+  %s
+}
+INSERT {
+  %s
+  %s
+  %s
+}
+WHERE {
+  ?ph a schema:PublicHolidays .
+    ?ph schema:name ?oldName;
+           schema:eventSchedule ?es.
+    ?es schema:startDate ?oldsd;
+        schema:endDate ?olded.
+
+     %s
+     %s
+     %s
+
+}

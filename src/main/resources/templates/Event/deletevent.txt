@@ -1,0 +1,18 @@
+PREFIX schema: <https://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX : <http://www.ontotext.com/connectors/elasticsearch#>
+delete{
+     ?event a schema:Event.
+    ?event  schema:name  ?name.
+     ?es a schema:Schedule.
+     ?es  schema:startDate  ?sd;
+     schema:endDate  ?ed.
+    ?event schema:eventSchedule ?es.
+}where{
+   ?event a schema:Event.
+    ?event  schema:name  "%s"@de.
+     ?es a schema:Schedule.
+     ?es  schema:startDate  "%s"^^xsd:date;
+          schema:endDate  "%s"^^xsd:date.
+    ?event schema:eventSchedule ?es.
+}

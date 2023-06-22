@@ -1,9 +1,8 @@
 package com.semantics.sparql.Models;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jdk.jfr.Name;
 import lombok.Data;
-import org.springframework.boot.context.properties.bind.Name;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -28,16 +27,4 @@ public class Action {
     private Map<String,Object> object;
     private Answer result;
 
-
-    @Override
-    public String toString() {
-        return "{" +
-                "'@context':" + context+"" +
-                ",'@type':'" + type + '\'' +
-                ",'schema:name':'" + actionName + '\'' +
-                ",'schema:description':'" + description + '\'' +
-                ",'schema:actionStatus':'schema:"+actionStatus + '\'' +
-                ",'object':" + object +
-                "}";
-    }
 }

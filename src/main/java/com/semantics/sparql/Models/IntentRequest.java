@@ -23,7 +23,7 @@ public class IntentRequest {
     private String description;
     @JsonProperty("schema:actionStatus")
     private String actionStatus;
-    @JsonProperty("object")
+    @JsonProperty("schema:object")
     private Map<String,Object> object;
 }
 

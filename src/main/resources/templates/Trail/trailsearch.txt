@@ -1,0 +1,17 @@
+PREFIX schema: <https://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX odta: <https://odta.io/voc/>
+
+select ?name ?lat ?lon
+
+where{
+    ?trail a odta:Trail.
+    ?trail  schema:name  ?name;
+      schema:geo ?geo.
+     ?geo schema:latitude ?lat;
+               schema:longitude ?lon.
+
+   %s
+   %s
+   %s
+}

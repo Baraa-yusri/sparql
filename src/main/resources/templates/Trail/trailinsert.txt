@@ -1,0 +1,12 @@
+PREFIX schema: <https://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX odta: <https://odta.io/voc/>
+
+insert Data{
+    <%s> a odta:Trail.
+    <%s> schema:name  "%s"@de.
+     <%s> a schema:GeoCoordinates.
+      <%s>  schema:latitude  "%s"^^xsd:double;
+            schema:longitude  "%s"^^xsd:double.
+      <%s> schema:geo <%s>.
+}

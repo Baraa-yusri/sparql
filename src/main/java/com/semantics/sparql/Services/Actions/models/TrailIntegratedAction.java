@@ -3,10 +3,10 @@ package com.semantics.sparql.Services.Actions.models;
 import com.semantics.sparql.Connectors.Trail.TrailClient;
 import com.semantics.sparql.Models.Action;
 import com.semantics.sparql.Services.Actions.ActionHandler;
+import com.semantics.sparql.Services.ShapeValidator;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Component
 @Slf4j
@@ -22,17 +22,27 @@ public class TrailIntegratedAction implements ActionHandler {
 
     @Override
     public boolean canHandleAction() {
-        return action.getActionName().contains("Trail.Search");
+        return action.getActionName().contains("Trail");
     }
 
+    @SneakyThrows
     @Override
     public void invoke() {
-        try {
-            boolean confirms = trailClient.requestvalidation();
-            trailClient.searchTrial();
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+        switch (action.getActionName()) {
+            case "Trail.Search" -> {
+                if (new ShapeValidator().requestvalidation("src/main/resources/shaclShapes/data.jsonld",
+                        "src/main/resources/shaclShapes/SearchTrailShape.ttl")) {
+                    trailClient.search();}
+            }
+            case "Trail.Insert"->
+                    trailClient.insert();
+            case "Trail.Delete"->
+                    trailClient.delete();
+            case "Trail.Update"->
+                    trailClient.update();
         }
     }
+
 }

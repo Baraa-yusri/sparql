@@ -19,6 +19,7 @@ public class AnswerResult implements Serializable {
     @JsonProperty("@type")
     private String type;
 
+    @JsonProperty("object")
     private Map<String,String> response;
 
 

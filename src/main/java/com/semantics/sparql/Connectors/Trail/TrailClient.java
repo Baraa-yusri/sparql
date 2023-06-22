@@ -1,42 +1,20 @@
 package com.semantics.sparql.Connectors.Trail;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ontotext.graphdb.repository.http.GraphDBHTTPRepository;
 import com.ontotext.graphdb.repository.http.GraphDBHTTPRepositoryBuilder;
 import com.semantics.sparql.Models.Action;
-import com.semantics.sparql.Models.Answer;
-import com.semantics.sparql.Models.AnswerResult;
+import com.semantics.sparql.Services.AnswerBuilder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.jena.graph.Graph;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.shacl.ShaclValidator;
-import org.apache.jena.shacl.Shapes;
-import org.apache.jena.shacl.ValidationReport;
-import org.apache.jena.shacl.lib.ShLib;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.XSD;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.sparqlbuilder.constraint.Expressions;
-import org.eclipse.rdf4j.sparqlbuilder.core.Prefix;
-import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
-import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
-import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries;
-import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
-import org.eclipse.rdf4j.sparqlbuilder.rdf.Iri;
-import org.eclipse.rdf4j.sparqlbuilder.rdf.Rdf;
 import org.springframework.stereotype.Component;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
@@ -47,98 +25,83 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 public class TrailClient {
     private final Action action;
 
+    private final AnswerBuilder answerBuilder;
 
+    @SneakyThrows
+    public void search(){
 
-    public boolean requestvalidation() throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonString  = mapper.writeValueAsString(action);
-
-
-        log.info("The validator of EventClient is being acessed!!");
-        log.info("The jsonString:", jsonString);
-        BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/shaclShapes/data.jsonld",true));
-        writer.write(jsonString);
-
-        writer.close();
-        String shape = "src/main/resources/shaclShapes/shape.ttl";
-        String data = "src/main/resources/shaclShapes/data.jsonld";
-
-        Graph shapesGraph = RDFDataMgr.loadGraph(shape);
-        Graph dataGraph = RDFDataMgr.loadGraph(data);
-        Shapes shapes = Shapes.parse(shapesGraph);
-        ValidationReport report = ShaclValidator.get().validate(shapes, dataGraph);
-        //printout
-        ShLib.printReport(report);
-        RDFDataMgr.write(System.out, report.getModel(), Lang.TURTLE);
-
-        boolean conforms = report.conforms();
-        System.out.println("conforms:");
-        System.out.println(conforms);
-        PrintWriter deleter = new PrintWriter(data);
-        deleter.print("");
-        return report.conforms();
-    }
-    public void searchTrial(){
+        String query = String.format(Files.readString(Path.of("src/main/resources/templates/Trail/trailsearch.txt"))
+                ,action.getObject().containsKey("name")?"FILTER (?name=\""+
+                        action.getObject().get("name")+"\"@de).":"filter(LANG(?name)=\"de\")",
+                action.getObject().containsKey("lat")?"FILTER (?lat=\""+
+                        action.getObject().get("lat")+"\"^^xsd:double).":"FILTER (DATATYPE(?lat)=xsd:double )\n"
+                ,action.getObject().containsKey("lon")?"FILTER (?lon=\""+
+                        action.getObject().get("lon")+"\"^^xsd:double).":"FILTER (DATATYPE(?lon)=xsd:double)");
+        log.info(query);
         GraphDBHTTPRepository repository = new GraphDBHTTPRepositoryBuilder().
                 withServerUrl("http://localhost:7200").withRepositoryId("statements").build();
         RepositoryConnection repositoryConnection = repository.getConnection();
-        Prefix xsd = SparqlBuilder.prefix(XSD.NS);
-        Prefix rdf = SparqlBuilder.prefix(RDF.NS);
-        Prefix schema = SparqlBuilder.prefix("schema", iri("https://schema.org/"));
-        Prefix odta = SparqlBuilder.prefix("odta", iri("https://odta.io/voc/"));
-        Variable trail = SparqlBuilder.var("trail");
-        Variable name = SparqlBuilder.var("name");
-        Variable geo = SparqlBuilder.var("geo");
-        Variable lat = SparqlBuilder.var("lat");
-        Variable lon = SparqlBuilder.var("lon");
-
-        Iri oTrail = odta.iri("Trail");
-        Iri sName = schema.iri("name");
-        Iri sGeo = schema.iri("geo");
-        Iri sLat = schema.iri("latitude");
-        Iri sLong = schema.iri("longitude");
-
-
-        SelectQuery selectQuery = Queries.SELECT().prefix(xsd).
-                prefix(rdf).
-                prefix(schema).
-                prefix(odta)
-                .select(name,lat,lon)
-                .where((trail.isA(oTrail)).and(trail.has(sName,name).and(trail.has(sGeo, geo))
-                                .and(geo.has(sLat,lat)
-                                        .andHas(sLong, lon)).optional()).
-                        filter(action.getObject().containsKey("latitude")?
-                                Expressions.equals(lat, Rdf.literalOf(action.getObject().get("latitude").
-                                        toString()).ofType(XSD.DOUBLE)) :Expressions.equals(Expressions.datatype(lat), xsd.iri("double")))
-                        .filter(action.getObject().containsKey("longitude")?
-                                Expressions.equals(lon, Rdf.literalOf(action.getObject().get("longitude").
-                                        toString()).ofType(XSD.DOUBLE)) :Expressions.equals(Expressions.datatype(lon), xsd.iri("double")))
-                        .filter(action.getObject().containsKey("name")&&!action.getObject().get("name").toString().isEmpty()?
-                                Expressions.equals(name, Rdf.literalOf(action.getObject().get("name").toString()))
-                                : Expressions.str(name))
-                ).limit(100);
-
-        System.out.println(selectQuery.getQueryString());
-
-        try {
-            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
-                    selectQuery.getQueryString());
-            TupleQueryResult tupleQueryResult = tupleQuery.evaluate();
-            List<BindingSet> arrayList =  tupleQueryResult.stream().toList();
-            List<AnswerResult> answer = new ArrayList<>();
-            for (BindingSet bindings : arrayList){
-                AnswerResult map = new AnswerResult("Trail", new HashMap<>());
-                map.getResponse().put("name", bindings.getValue("name").stringValue());
-                map.getResponse().put("latitude", bindings.getValue("lat").stringValue());
-                map.getResponse().put("longitude", bindings.getValue("lon").stringValue());
-                answer.add(map);
-            }
-
-            action.setResult(new Answer(action.getContext(),"SearchAction","Schema:CompletedAction",answer));
-            tupleQueryResult.close();
-        }finally {
-            repositoryConnection.close();
-        }
+        TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
+                query);
+        answerBuilder.buildAnswer(tupleQuery);
+        repositoryConnection.close();
     }
+
+    @SneakyThrows
+    public void insert(){
+        String eventIRI = "https://"+"statements/"+ RandomStringUtils.randomAlphanumeric(16);
+        String eventScheduleIRI = "https://"+"statements/"+RandomStringUtils.randomAlphanumeric(16);
+        String query =String.format( Files.readString(Path.of("src/main/resources/templates/Trail/trailinsert.txt")),
+                eventIRI, eventIRI,action.getObject().get("name"),eventScheduleIRI,eventScheduleIRI,action.getObject().get("lat"),
+                action.getObject().get("lon"), eventIRI,eventScheduleIRI);
+        log.info(query);
+        GraphDBHTTPRepository repository = new GraphDBHTTPRepositoryBuilder().
+                withServerUrl("http://localhost:7200").withRepositoryId("statements").build();
+        RepositoryConnection repositoryConnection = repository.getConnection();
+        Update update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,query);
+        update.execute();
+        repositoryConnection.close();
+    }
+
+    @SneakyThrows
+    public void delete(){
+        String query =String.format( Files.readString(Path.of("src/main/resources/templates/Trail/traildelete.txt")),
+                action.getObject().get("name"),action.getObject().get("lat"),action.getObject().get("lon"));
+        log.info(query);
+        GraphDBHTTPRepository repository = new GraphDBHTTPRepositoryBuilder().
+                withServerUrl("http://localhost:7200").withRepositoryId("statements").build();
+        RepositoryConnection repositoryConnection = repository.getConnection();
+        Update update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,query);
+        update.execute();
+        repositoryConnection.close();
+    }
+
+    @SneakyThrows
+    public void update(){
+        Map<String,Object> object = action.getObject();
+        Map<String,String> data = (Map<String, String>) object.get("data");
+        boolean nameExp = object.containsKey("name");
+        boolean latExp = object.containsKey("lat");
+        boolean lonExp = object.containsKey("lon");
+
+        String query =String.format( Files.readString(Path.of("src/main/resources/templates/Trail/trailupdate.txt")),
+                data.containsKey("name")?"?trail schema:name ?oldName.":"",data.containsKey("lat")?"?geo schema:latitude ?oldlat.":"",
+                data.containsKey("lon")?"?geo schema:longitude ?oldlon.":"",
+                data.containsKey("name")?"?trail schema:name \""+data.get("name")+"\"@de.":"",data.containsKey("lat")?"?geo schema:latitude \""+
+                        data.get("lat")+"\"^^xsd:double.":"",
+                data.containsKey("lon")?"?geo schema:longitude \""+data.get("lon")+"\"^^xsd:double.":"",
+                nameExp?"FILTER (?oldName = \""+object.get("name")+"\"@de)":"",
+                latExp?"FILTER (?oldlat = \""+object.get("lat")+"\"^^xsd:double)":"",
+                lonExp?" FILTER (?oldlon = \""+object.get("lon")+"\"^^xsd:double)":"");
+        log.info(query);
+        GraphDBHTTPRepository repository = new GraphDBHTTPRepositoryBuilder().
+                withServerUrl("http://localhost:7200").withRepositoryId("statements").build();
+        RepositoryConnection repositoryConnection = repository.getConnection();
+        Update update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,query);
+        update.execute();
+
+        repositoryConnection.close();
+    }
+
+
 }
