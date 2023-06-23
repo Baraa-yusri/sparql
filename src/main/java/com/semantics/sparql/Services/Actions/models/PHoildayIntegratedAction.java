@@ -40,8 +40,12 @@ public class PHoildayIntegratedAction implements ActionHandler {
                                             pubHolidaysClient.search();
                 }
             }
-            case "Holidays.Insert"->
+            case "Holidays.Insert"-> {
+                if (new ShapeValidator().requestvalidation("src/main/resources/shaclShapes/data.jsonld",
+                        "src/main/resources/shaclShapes/insertHolidayShape.ttl")) {
                     pubHolidaysClient.insert();
+                }
+            }
             case "Holidays.Delete"->
                     pubHolidaysClient.delete();
             case "Holidays.Update"->

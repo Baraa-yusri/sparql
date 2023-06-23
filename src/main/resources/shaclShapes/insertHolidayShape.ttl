@@ -7,14 +7,13 @@
 
 wasa:actionShape
     a sh:NodeShape ;
-        sh:targetClass schema:Event;
-        schema:name "Event Search";
-        schema:description "Search different types of events based on name or date";
+        sh:targetClass schema:publicHolidays;
+        schema:name "Holidays Insert";
+        schema:description "Insert different types of Holidays based on name or date";
         schema:actionStatus schema:PotentialActionStatus;
     sh:property [
         sh:path schema:object;
         sh:node schema:object;
-        sh:maxCount 1;
     ] .
 
 schema:object
@@ -23,24 +22,19 @@ schema:object
         sh:path schema:name;
         sh:datatype xsd:string ;
         sh:maxCount 1;
+        sh:minCount 1
     ];
    sh:property [
         sh:path schema:startDate;
+        sh:maxCount 1;
+        sh:minCount 1;
         sh:pattern "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" ;
         sh:message "The value must be in the YYYY-MM-DD format "
     ] ;
-       sh:property [
-            sh:path schema:startDate;
-            sh:maxCount 1
-
-        ] ;
     sh:property [
         sh:path schema:endDate;
+        sh:maxCount 1;
+        sh:minCount 1;
         sh:pattern "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" ;
         sh:message "The value must be in the YYYY-MM-DD format "
-
-    ];
-    sh:property [
-            sh:path schema:endDate;
-            sh:maxCount 1;
-        ].
+    ].

@@ -33,10 +33,10 @@ public class TrailClient {
         String query = String.format(Files.readString(Path.of("src/main/resources/templates/Trail/trailsearch.txt"))
                 ,action.getObject().containsKey("name")?"FILTER (?name=\""+
                         action.getObject().get("name")+"\"@de).":"filter(LANG(?name)=\"de\")",
-                action.getObject().containsKey("lat")?"FILTER (?lat=\""+
-                        action.getObject().get("lat")+"\"^^xsd:double).":"FILTER (DATATYPE(?lat)=xsd:double )\n"
-                ,action.getObject().containsKey("lon")?"FILTER (?lon=\""+
-                        action.getObject().get("lon")+"\"^^xsd:double).":"FILTER (DATATYPE(?lon)=xsd:double)");
+                action.getObject().containsKey("latitude")?"FILTER (?lat=\""+
+                        action.getObject().get("latitude")+"\"^^xsd:double).":"FILTER (DATATYPE(?lat)=xsd:double )\n"
+                ,action.getObject().containsKey("longitude")?"FILTER (?lon=\""+
+                        action.getObject().get("longitude")+"\"^^xsd:double).":"FILTER (DATATYPE(?lon)=xsd:double)");
         log.info(query);
         GraphDBHTTPRepository repository = new GraphDBHTTPRepositoryBuilder().
                 withServerUrl("http://localhost:7200").withRepositoryId("statements").build();
@@ -52,8 +52,8 @@ public class TrailClient {
         String eventIRI = "https://"+"statements/"+ RandomStringUtils.randomAlphanumeric(16);
         String eventScheduleIRI = "https://"+"statements/"+RandomStringUtils.randomAlphanumeric(16);
         String query =String.format( Files.readString(Path.of("src/main/resources/templates/Trail/trailinsert.txt")),
-                eventIRI, eventIRI,action.getObject().get("name"),eventScheduleIRI,eventScheduleIRI,action.getObject().get("lat"),
-                action.getObject().get("lon"), eventIRI,eventScheduleIRI);
+                eventIRI, eventIRI,action.getObject().get("name"),eventScheduleIRI,eventScheduleIRI,action.getObject().get("latitude"),
+                action.getObject().get("longitude"), eventIRI,eventScheduleIRI);
         log.info(query);
         GraphDBHTTPRepository repository = new GraphDBHTTPRepositoryBuilder().
                 withServerUrl("http://localhost:7200").withRepositoryId("statements").build();
@@ -66,7 +66,7 @@ public class TrailClient {
     @SneakyThrows
     public void delete(){
         String query =String.format( Files.readString(Path.of("src/main/resources/templates/Trail/traildelete.txt")),
-                action.getObject().get("name"),action.getObject().get("lat"),action.getObject().get("lon"));
+                action.getObject().get("name"),action.getObject().get("latitude"),action.getObject().get("longitude"));
         log.info(query);
         GraphDBHTTPRepository repository = new GraphDBHTTPRepositoryBuilder().
                 withServerUrl("http://localhost:7200").withRepositoryId("statements").build();
@@ -81,18 +81,18 @@ public class TrailClient {
         Map<String,Object> object = action.getObject();
         Map<String,String> data = (Map<String, String>) object.get("data");
         boolean nameExp = object.containsKey("name");
-        boolean latExp = object.containsKey("lat");
-        boolean lonExp = object.containsKey("lon");
+        boolean latExp = object.containsKey("latitude");
+        boolean lonExp = object.containsKey("longitude");
 
         String query =String.format( Files.readString(Path.of("src/main/resources/templates/Trail/trailupdate.txt")),
-                data.containsKey("name")?"?trail schema:name ?oldName.":"",data.containsKey("lat")?"?geo schema:latitude ?oldlat.":"",
-                data.containsKey("lon")?"?geo schema:longitude ?oldlon.":"",
-                data.containsKey("name")?"?trail schema:name \""+data.get("name")+"\"@de.":"",data.containsKey("lat")?"?geo schema:latitude \""+
-                        data.get("lat")+"\"^^xsd:double.":"",
-                data.containsKey("lon")?"?geo schema:longitude \""+data.get("lon")+"\"^^xsd:double.":"",
+                data.containsKey("name")?"?trail schema:name ?oldName.":"",data.containsKey("latitude")?"?geo schema:latitude ?oldlat.":"",
+                data.containsKey("latitude")?"?geo schema:longitude ?oldlon.":"",
+                data.containsKey("name")?"?trail schema:name \""+data.get("name")+"\"@de.":"",data.containsKey("latitude")?"?geo schema:latitude \""+
+                        data.get("latitude")+"\"^^xsd:double.":"",
+                data.containsKey("longitude")?"?geo schema:longitude \""+data.get("longitude")+"\"^^xsd:double.":"",
                 nameExp?"FILTER (?oldName = \""+object.get("name")+"\"@de)":"",
-                latExp?"FILTER (?oldlat = \""+object.get("lat")+"\"^^xsd:double)":"",
-                lonExp?" FILTER (?oldlon = \""+object.get("lon")+"\"^^xsd:double)":"");
+                latExp?"FILTER (?oldlat = \""+object.get("latitude")+"\"^^xsd:double)":"",
+                lonExp?" FILTER (?oldlon = \""+object.get("longitude")+"\"^^xsd:double)":"");
         log.info(query);
         GraphDBHTTPRepository repository = new GraphDBHTTPRepositoryBuilder().
                 withServerUrl("http://localhost:7200").withRepositoryId("statements").build();

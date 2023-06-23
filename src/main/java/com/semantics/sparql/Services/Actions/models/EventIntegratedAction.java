@@ -42,8 +42,13 @@ public class EventIntegratedAction implements ActionHandler {
                             eventClient.search();
                         }
                     }
-                    case "Event.Insert"->
-                        eventClient.insert();
+                    case "Event.Insert"->{
+                        conforms=shapeValidator.requestvalidation("src/main/resources/shaclShapes/data.jsonld",
+                                "src/main/resources/shaclShapes/InsertEventShape.ttl");
+                        if (conforms) {
+                            eventClient.insert();
+                        }
+                        }
                     case "Event.Delete"->
                         eventClient.delete();
                     case "Event.Update"->
