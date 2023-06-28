@@ -17,6 +17,25 @@ import java.util.List;
 
 public class Answer implements Serializable {
 
+    public Answer(Map<String,Object> context,String type, String actionStatus,
+                       String error){
+        this.error=error;
+        this.context=context;
+        this.type = type;
+        this.actionStatus=actionStatus;
+
+    }
+    public Answer(Map<String,Object> context,String type, String actionStatus,
+                  List<AnswerResult> answerResults  ){
+        this.error=error;
+        this.context=context;
+        this.type = type;
+        this.actionStatus=actionStatus;
+        this.answerResults = answerResults;
+
+    }
+
+
     @JsonProperty("@context")
     private Map<String,Object> context;
     @JsonProperty("@type")
@@ -26,4 +45,6 @@ public class Answer implements Serializable {
     @JsonProperty("result")
     private List<AnswerResult> answerResults;
 
+    @JsonProperty("Error")
+    String error;
 }

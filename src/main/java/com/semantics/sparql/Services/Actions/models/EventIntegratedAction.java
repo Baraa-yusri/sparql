@@ -2,6 +2,7 @@ package com.semantics.sparql.Services.Actions.models;
 
 import com.semantics.sparql.Connectors.Event.EventClient;
 import com.semantics.sparql.Models.Action;
+import com.semantics.sparql.Models.Answer;
 import com.semantics.sparql.Services.Actions.ActionHandler;
 import com.semantics.sparql.Services.ShapeValidator;
 import lombok.SneakyThrows;
@@ -40,6 +41,9 @@ public class EventIntegratedAction implements ActionHandler {
                                 "src/main/resources/shaclShapes/SearchEventAction.ttl");
                         if (conforms) {
                             eventClient.search();
+                        }else {
+                            action.setActionStatus("FailedAction");
+                            action.setResult(new Answer(action.getContext(), action.getType(), action.getActionStatus(),"shape violation"));
                         }
                     }
                     case "Event.Insert"->{
@@ -47,6 +51,9 @@ public class EventIntegratedAction implements ActionHandler {
                                 "src/main/resources/shaclShapes/InsertEventShape.ttl");
                         if (conforms) {
                             eventClient.insert();
+                        }else {
+                            action.setActionStatus("FailedAction");
+                            action.setResult(new Answer(action.getContext(), action.getType(), action.getActionStatus(),"shape violation"));
                         }
                         }
                     case "Event.Delete"->{
@@ -54,14 +61,17 @@ public class EventIntegratedAction implements ActionHandler {
                                 "src/main/resources/shaclShapes/DeleteEventShape.ttl");
                         if (conforms) {
                             eventClient.delete();
+                        }else {
+                            action.setActionStatus("FailedAction");
+                            action.setResult(new Answer(action.getContext(), action.getType(), action.getActionStatus(),"shape violation"));
                         }
                     }
                     case "Event.Update"->{
                         conforms=shapeValidator.requestvalidation("src/main/resources/shaclShapes/data.jsonld",
                                 "src/main/resources/shaclShapes/UpdateEventShape.ttl");
-                        if (conforms) {
+
                             eventClient.update();
-                        }
+
                     }
                 }
     }

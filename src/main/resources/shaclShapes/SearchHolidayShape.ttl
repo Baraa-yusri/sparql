@@ -8,7 +8,7 @@
 wasa:actionShape
     a sh:NodeShape ;
         sh:targetClass schema:PublicHolidays;
-        schema:name "PublicHolidays Search";
+        schema:name "PublicHolidays Insert";
         schema:description "Search different types of PublicHolidays based on name or date";
         schema:actionStatus schema:PotentialActionStatus;
     sh:property [
