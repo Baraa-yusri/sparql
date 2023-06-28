@@ -4,13 +4,12 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix wasa:<http://vocab.sti2.at/wasa/>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix odta: <https://odta.io/voc/>.
 
 wasa:actionShape
     a sh:NodeShape ;
-        sh:targetClass odta:Trail;
-        schema:name "Trail Insert";
-        schema:description "Insert different types of Trail based on name or date";
+        sh:targetClass schema:publicHolidays;
+        schema:name "Holidays Delete";
+        schema:description "Delete different types of holidays based on name or date";
         schema:actionStatus schema:PotentialActionStatus;
     sh:property [
         sh:path schema:object;
@@ -26,16 +25,16 @@ schema:object
         sh:minCount 1
     ];
    sh:property [
-        sh:path schema:latitude;
+        sh:path schema:startDate;
         sh:maxCount 1;
         sh:minCount 1;
-        sh:datatype xsd:double ;
-
+        sh:pattern "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" ;
+        sh:message "The value must be in the YYYY-MM-DD format "
     ] ;
     sh:property [
-        sh:path schema:longitude;
+        sh:path schema:endDate;
         sh:maxCount 1;
         sh:minCount 1;
-        sh:datatype xsd:double ;
-
+        sh:pattern "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" ;
+        sh:message "The value must be in the YYYY-MM-DD format "
     ].

@@ -49,10 +49,20 @@ public class EventIntegratedAction implements ActionHandler {
                             eventClient.insert();
                         }
                         }
-                    case "Event.Delete"->
-                        eventClient.delete();
-                    case "Event.Update"->
-                        eventClient.update();
+                    case "Event.Delete"->{
+                        conforms=shapeValidator.requestvalidation("src/main/resources/shaclShapes/data.jsonld",
+                                "src/main/resources/shaclShapes/DeleteEventShape.ttl");
+                        if (conforms) {
+                            eventClient.delete();
+                        }
+                    }
+                    case "Event.Update"->{
+                        conforms=shapeValidator.requestvalidation("src/main/resources/shaclShapes/data.jsonld",
+                                "src/main/resources/shaclShapes/UpdateEventShape.ttl");
+                        if (conforms) {
+                            eventClient.update();
+                        }
+                    }
                 }
     }
 }

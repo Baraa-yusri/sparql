@@ -33,6 +33,13 @@ public class ActionDataLoader {
         action.setDescription(intentRequest.getDescription());
         action.setObject(intentRequest.getObject().entrySet().stream()
                 .collect(toMap(e -> e.getKey().substring(e.getKey().lastIndexOf(":")+1), v->v.getValue())));
+        if (action.getActionName().contains("Update")){
+            Map<String,Object> newData = (Map<String, Object>) action.getObject().get("data");
+            newData.entrySet().stream()
+                    .collect(toMap(e -> e.getKey().substring(e.getKey().lastIndexOf(":")+1), v->v.getValue()));
+            action.getObject().remove("schema:data");
+            action.getObject().put("data", newData);
+        }
         action.setError("");
         writeActionToFile(intentRequest);
     }

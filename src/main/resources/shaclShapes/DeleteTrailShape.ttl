@@ -9,8 +9,8 @@
 wasa:actionShape
     a sh:NodeShape ;
         sh:targetClass odta:Trail;
-        schema:name "Trail Insert";
-        schema:description "Insert different types of Trail based on name or date";
+        schema:name "Trail Delete";
+        schema:description "Delete different types of Trail based on name or geo";
         schema:actionStatus schema:PotentialActionStatus;
     sh:property [
         sh:path schema:object;
@@ -19,6 +19,7 @@ wasa:actionShape
 
 schema:object
     a sh:NodeShape ;
+    sh:targetClass schema:geo;
     sh:property [
         sh:path schema:name;
         sh:datatype xsd:string ;
@@ -27,15 +28,23 @@ schema:object
     ];
    sh:property [
         sh:path schema:latitude;
-        sh:maxCount 1;
-        sh:minCount 1;
         sh:datatype xsd:double ;
-
+        sh:message "The value must be in the double format "
     ] ;
+       sh:property [
+            sh:path schema:latitude;
+            sh:maxCount 1;
+            sh:minCount 1
+        ] ;
     sh:property [
         sh:path schema:longitude;
-        sh:maxCount 1;
-        sh:minCount 1;
         sh:datatype xsd:double ;
+        sh:message "The value must be in the double format "
 
-    ].
+    ];
+    sh:property [
+            sh:path schema:longitude;
+            sh:maxCount 1;
+            sh:minCount 1
+
+        ].

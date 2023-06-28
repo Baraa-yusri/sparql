@@ -41,8 +41,11 @@ public class TrailIntegratedAction implements ActionHandler {
                         "src/main/resources/shaclShapes/InsertTrailShape.ttl")) {
                     trailClient.insert();}
             }
-            case "Trail.Delete"->
-                    trailClient.delete();
+            case "Trail.Delete"->{
+                if (new ShapeValidator().requestvalidation("src/main/resources/shaclShapes/data.jsonld",
+                        "src/main/resources/shaclShapes/DeleteTrailShape.ttl")) {
+                    trailClient.delete();}
+            }
             case "Trail.Update"->
                     trailClient.update();
         }
